@@ -1,8 +1,9 @@
+#!/usr/bin/env python
+
 import argparse
 import sys
-from socket import socket
 import idna
-
+from socket import socket
 from OpenSSL import SSL
 from datetime import datetime
 
