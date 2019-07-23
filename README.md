@@ -1,2 +1,111 @@
 # check_certificate
-Plugin for Icinga2 to check the expiration time of certificates.
+Plugin for Icinga2 to check the expiration of an SSL/TLS certificate.
+
+## Usage
+```
+check_certificate.py [-h] -H <HOST> [-P <PORT>] [-w <WARN>] [-c <CRIT>] 
+                                    [-p] [-v] [-V]
+```  
+
+```
+optional arguments:
+  -h, --help                show this help message and exit
+  
+  -H <host>, --host <host>  Hostname or ip address
+                        
+  -P <port>, --port <port>  Set the port to check (default is 443)
+                        
+  -w <warn>, --warn <warn>  Value in days for warning alert
+                        
+  -c <crit>, --crit <crit>  Value in days for critical alert
+                        
+  -p, --perfdata            Turns on performance data
+  
+  -v, --verbose             Show more output
+  
+  -V, --version             Shows the current versiond
+```
+
+## Example
+### HTTPS
+```
+./check_certificate.py --host google.com --warn 14 --crit 3 --perfdata
+OK - Certificate is valid until 2019-09-10 08:16:00 (48 days) | 'valid_days'=48;14;3
+```
+
+### IMAPS
+```
+./check_certificate.py --host imap.gmail.com --port 993 --warn 14 --crit 3
+OK - Certificate is valid until 2019-09-10 08:15:00 (48 days)
+
+```
+
+## Icinga2 integration
+### Configure the CheckCommand
+```
+object CheckCommand "check_certificate" {
+  command = [ PluginContribDir + "/check_certificate.py"]
+
+  arguments = {
+    "-D" = {
+      value = "$DOMAIN$"
+      description = "The DN of which the certificate should be checked."
+      required = true
+    }
+    "-P" = {
+      value = "$PORT$"
+      description = "The Port on which to check."
+      required = false
+    }
+    "-w" = {
+      value = "$WARNING$"
+      description = "The warning threshold in days."
+      required = false
+    }
+    "-c" = {
+      value = "$CRITICAL$"
+      description = "The critical threshold in days."
+      required = false
+    }
+    "-p" = {
+      set_if = "$PERFDATA$"
+      description = "Activate performancedata (just for fun)."
+      required = false
+    }
+  }
+  
+  vars.DOMAIN   = "$DOMAIN$"
+  vars.PORT     = "$PORT$"
+  vars.WARNING  = "$WARNING$"
+  vars.CRITICAL = "$CRITICAL$"
+  vars.PERFDATA = "$PERFDATA$"
+}
+```
+
+### Service definition
+#### HTTPS
+```
+apply Service "CERTIFICATE - www.google.com" {
+  import "generic-service"
+  check_command = "check_certificate"
+
+  vars.DOMAIN   = "www.google.com"
+  vars.WARNING  = "30"
+  vars.CRITICAL = "15"
+  assign where host.name in [ "SERVER" ]
+}
+```
+
+#### IMAPS
+```
+apply Service "CERTIFICATE - imap.gmail.com" {
+  import "generic-service"
+  check_command = "check_certificate"
+
+  vars.DOMAIN   = "imap.gmail.com"
+  vars.PORT     = "993"
+  vars.WARNING  = "30"
+  vars.CRITICAL = "15"
+  vars.PERFDATA = true
+  assign where host.name in [ "HOSTNAME" ]
+}
