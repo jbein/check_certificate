@@ -44,41 +44,41 @@ OK - Certificate is valid until 2019-09-10 08:15:00 (48 days)
 ### Configure the CheckCommand
 ```
 object CheckCommand "check_certificate" {
-  command = [ PluginContribDir + "/check_certificate.py"]
+    command = [ PluginContribDir + "/check_certificate.py"]
 
-  arguments = {
-    "-D" = {
-      value = "$DOMAIN$"
-      description = "The DN of which the certificate should be checked."
-      required = true
+    arguments = {
+        "-D" = {
+            value = "$DOMAIN$"
+            description = "The DN of which the certificate should be checked."
+            required = true
+        }
+        "-P" = {
+            value = "$PORT$"
+            description = "The Port on which to check."
+            required = false
+        }
+        "-w" = {
+            value = "$WARNING$"
+            description = "The warning threshold in days."
+            required = false
+        }
+        "-c" = {
+            value = "$CRITICAL$"
+            description = "The critical threshold in days."
+            required = false
+        }
+        "-p" = {
+            set_if = "$PERFDATA$"
+            description = "Activate performancedata (just for fun)."
+            required = false
+        }
     }
-    "-P" = {
-      value = "$PORT$"
-      description = "The Port on which to check."
-      required = false
-    }
-    "-w" = {
-      value = "$WARNING$"
-      description = "The warning threshold in days."
-      required = false
-    }
-    "-c" = {
-      value = "$CRITICAL$"
-      description = "The critical threshold in days."
-      required = false
-    }
-    "-p" = {
-      set_if = "$PERFDATA$"
-      description = "Activate performancedata (just for fun)."
-      required = false
-    }
-  }
   
-  vars.DOMAIN   = "$DOMAIN$"
-  vars.PORT     = "$PORT$"
-  vars.WARNING  = "$WARNING$"
-  vars.CRITICAL = "$CRITICAL$"
-  vars.PERFDATA = "$PERFDATA$"
+    vars.DOMAIN   = "$DOMAIN$"
+    vars.PORT     = "$PORT$"
+    vars.WARNING  = "$WARNING$"
+    vars.CRITICAL = "$CRITICAL$"
+    vars.PERFDATA = "$PERFDATA$"
 }
 ```
 
@@ -86,26 +86,31 @@ object CheckCommand "check_certificate" {
 #### HTTPS
 ```
 apply Service "CERTIFICATE - www.google.com" {
-  import "generic-service"
-  check_command = "check_certificate"
+    import "generic-service"
+  
+    check_command = "check_certificate"
 
-  vars.DOMAIN   = "www.google.com"
-  vars.WARNING  = "30"
-  vars.CRITICAL = "15"
-  assign where host.name in [ "SERVER" ]
+    vars.DOMAIN   = "www.google.com"
+    vars.WARNING  = "30"
+    vars.CRITICAL = "15"
+    
+    assign where match("HOSTNAME", host.name)
 }
 ```
 
 #### IMAPS
 ```
 apply Service "CERTIFICATE - imap.gmail.com" {
-  import "generic-service"
-  check_command = "check_certificate"
+    import "generic-service"
 
-  vars.DOMAIN   = "imap.gmail.com"
-  vars.PORT     = "993"
-  vars.WARNING  = "30"
-  vars.CRITICAL = "15"
-  vars.PERFDATA = true
-  assign where host.name in [ "HOSTNAME" ]
+    check_command = "check_certificate"
+
+    vars.DOMAIN   = "imap.gmail.com"
+    vars.PORT     = "993"
+    vars.WARNING  = "7"
+    vars.CRITICAL = "3"
+    vars.PERFDATA = true
+
+    assign where match("HOSTNAME", host.name)
 }
+```
