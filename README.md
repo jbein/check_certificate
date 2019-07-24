@@ -3,39 +3,39 @@ Plugin for Icinga2 to check the expiration of an SSL/TLS certificate.
 
 ## Usage
 ```
-check_certificate.py [-h] -H <HOST> [-P <PORT>] [-w <WARN>] [-c <CRIT>] 
+check_certificate.py [-h] -D <DOMAIN> [-P <PORT>] [-w <WARN>] [-c <CRIT>] 
                                     [-p] [-v] [-V]
 ```  
 
 ```
 optional arguments:
-  -h, --help                show this help message and exit
+  -h, --help                        show this help message and exit
   
-  -H <host>, --host <host>  Hostname or ip address
+  -D <domain>, --domain <domain>    Hostname or ip address
                         
-  -P <port>, --port <port>  Set the port to check (default is 443)
+  -P <port>, --port <port>          Set the port to check (default is 443)
                         
-  -w <warn>, --warn <warn>  Value in days for warning alert
+  -w <warn>, --warn <warn>          The warning threshold in days
                         
-  -c <crit>, --crit <crit>  Value in days for critical alert
+  -c <crit>, --crit <crit>          The critical threshold in days
                         
-  -p, --perfdata            Turns on performance data
+  -p, --perfdata                    Turns on performance data
   
-  -v, --verbose             Show more output
+  -v, --verbose                     Show more output
   
-  -V, --version             Shows the current versiond
+  -V, --version                     Shows the current versiond
 ```
 
 ## Example
 ### HTTPS
 ```
-./check_certificate.py --host google.com --warn 14 --crit 3 --perfdata
+./check_certificate.py --domain google.com --warn 14 --crit 3 --perfdata
 OK - Certificate is valid until 2019-09-10 08:16:00 (48 days) | 'valid_days'=48;14;3
 ```
 
 ### IMAPS
 ```
-./check_certificate.py --host imap.gmail.com --port 993 --warn 14 --crit 3
+./check_certificate.py --domain imap.gmail.com --port 993 --warn 14 --crit 3
 OK - Certificate is valid until 2019-09-10 08:15:00 (48 days)
 
 ```
