@@ -92,7 +92,7 @@ apply Service "CERTIFICATE - www.google.com" {
     vars.WARNING  = "30"
     vars.CRITICAL = "15"
     
-    assign where match("HOSTNAME", host.name)
+    assign where match(<HOSTNAME>, host.name)
 }
 ```
 
@@ -109,7 +109,7 @@ apply Service "CERTIFICATE - imap.gmail.com" {
     vars.CRITICAL = "3"
     vars.PERFDATA = true
 
-    assign where match("HOSTNAME", host.name)
+    assign where match(<HOSTNAME>, host.name)
 }
 ```
 
@@ -134,7 +134,7 @@ for(domain => ports in domainlist) {
                         vars.CRITICAL = 2
                         vars.PERFDATA = true
 
-                        assign where match("maui*", host.name)
+                        assign where match(<HOSTNAME>, host.name)
                 }
         }
 }
