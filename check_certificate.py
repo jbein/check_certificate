@@ -55,9 +55,12 @@ def main():
     cert_crypt = cert.to_cryptography()
     valid_days = calc_valid_days(cert_crypt.not_valid_after)
     perfdata = " | 'valid_days'="+str(valid_days)+";"+str(args.warn)+";"+str(args.crit)
+    verbosedata = " ISSUER: " + str(cert_crypt.issuer) + " SUBJECT: " + str(cert_crypt.subject)
 
     if cert.has_expired():
         msg = "CRITICAL - Certificate has expired on " + str(cert_crypt.not_valid_after) + " (" + str(valid_days) + " days)"
+        if args.verbose:
+            msg += verbosedata
         if args.perfdata:
             msg += perfdata
         print(msg)
@@ -66,18 +69,27 @@ def main():
     if valid_days > int(args.crit):
         if valid_days > int(args.warn):
             msg = "OK - Certificate is valid until " + str(cert_crypt.not_valid_after) + " (" + str(valid_days) + " days)"
+            if args.verbose:
+                msg += verbosedata
             if args.perfdata:
                 msg += perfdata
             print(msg)
             sys.exit(0)
         else:
             msg = "WARNING - Certificate is valid until " + str(cert_crypt.not_valid_after) + " (" + str(valid_days) + " days)"
+            if args.verbose:
+                msg += verbosedata
             if args.perfdata:
                 msg += perfdata
             print(msg)
             sys.exit(1)
     else:
-        print("CRITICAL - Certificate is valid until " + str(cert_crypt.not_valid_after) + " (" + str(valid_days) + " days)")
+        msg = "CRITICAL - Certificate is valid until " + str(cert_crypt.not_valid_after) + " (" + str(valid_days) + " days)"
+        if args.verbose:
+            msg += verbosedata
+        if args.perfdata:
+            msg += perfdata
+        print(msg)
         sys.exit(2)
 
 

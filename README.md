@@ -4,12 +4,10 @@ Plugin for Icinga2 to check the expiration of an SSL/TLS certificate.
 ## Usage
 ```
 check_certificate.py [-h] -D <DOMAIN> [-P <PORT>] [-w <WARN>] [-c <CRIT>] 
-                                    [-p] [-v] [-V]
-```  
+                                      [-p] [-v] [-V]
 
-```
 optional arguments:
-  -h, --help                        show this help message and exit
+  -h, --help                        Show this help message
   
   -D <domain>, --domain <domain>    Hostname or ip address
                         
@@ -112,5 +110,32 @@ apply Service "CERTIFICATE - imap.gmail.com" {
     vars.PERFDATA = true
 
     assign where match("HOSTNAME", host.name)
+}
+```
+
+#### Alternative
+```
+var domainlist = {
+        "mail.example.tld" = [443, 587, 993],
+        "google.com" = [443],
+        "example.tld" = [443, 8443]
+}
+for(domain => ports in domainlist) {
+        for(port in ports) {
+                apply Service "CERTIFICATE - " + domain + " Port: " + port use(domain, port) {
+                        import "generic-service"
+
+                        check_command  = "check_certificate"
+                        check_interval = 1d
+
+                        vars.DOMAIN   = domain
+                        vars.PORT     = port
+                        vars.WARNING  = 7
+                        vars.CRITICAL = 2
+                        vars.PERFDATA = true
+
+                        assign where match("maui*", host.name)
+                }
+        }
 }
 ```
